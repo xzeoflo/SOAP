@@ -1,9 +1,37 @@
-CREATE TABLE products (
-  id SERIAL PRIMARY KEY,
-  name VARCHAR(100),
-  about VARCHAR(500),
-  price FLOAT
+CREATE TABLE IF NOT EXISTS products (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    about TEXT NOT NULL,
+    price DECIMAL(10, 2) NOT NULL,
+    rating_score DECIMAL(3, 2) DEFAULT 0.00
 );
 
-INSERT INTO products (name, about, price) VALUES
-  ('My first game', 'This is an awesome game', '60')
+CREATE TABLE IF NOT EXISTS users (
+    id SERIAL PRIMARY KEY,
+    username VARCHAR(255) UNIQUE NOT NULL,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    password TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS orders (
+    id SERIAL PRIMARY KEY,
+    user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    product_ids INT[] NOT NULL,
+    total DECIMAL(10, 2) NOT NULL,
+    payment BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS reviews (
+    id SERIAL PRIMARY KEY,
+    user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    product_id INT NOT NULL REFERENCES products(id) ON DELETE CASCADE,
+    score INT NOT NULL CHECK (score BETWEEN 1 AND 5),
+    content TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+INSERT INTO products (name, about, price) VALUES 
+('Elden ring', 'game of the year', 60.00);

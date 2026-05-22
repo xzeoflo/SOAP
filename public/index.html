@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Real-Time Products</title>
+    <script src="/socket.io/socket.io.js"></script>
+</head>
+<body>
+    <h1>Liste des Produits (Temps Réel)</h1>
+    <ul id="products-list"></ul>
+
+    <script>
+        const socket = io();
+        const list = document.getElementById("products-list");
+
+        async function loadProducts() {
+            const res = await fetch("/products");
+            const products = await res.json();
+            list.innerHTML = "";
+            products.forEach(p => appendProduct(p));
+        }
+
+        function appendProduct(product) {
+            const li = document.createElement("li");
+            li.id = `prod-${product._id}`;
+            li.innerText = `${product.name} - ${product.price}€ (${product.about})`;
+            list.appendChild(li);
+        }
+
+        socket.on("products", (event) => {
+            if (event.action === "CREATE") {
+                appendProduct(event.data);
+            } else if (event.action === "UPDATE" || event.action === "DELETE") {
+                loadProducts();
+            }
+        });
+
+        loadProducts();
+    </script>
+</body>
+</html>
